@@ -1,0 +1,19 @@
+{
+    "name": "caxy/basex-client-php",
+    "type": "library",
+    "description": "BaseX PHP Client",
+    "keywords": ["basex", "xml", "database", "client"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Josh Schroeder",
+            "email": "jschroeder@caxy.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Caxy\\BaseX\\": "src/"}
+    },
+    "extra": {
+        "branch-alias": {"dev-master": "0.0.x-dev"}
+    }
+}
