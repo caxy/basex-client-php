@@ -2,6 +2,8 @@
 
 namespace Caxy\BaseX;
 
+use Exception;
+
 class Query
 {
     private $session;
