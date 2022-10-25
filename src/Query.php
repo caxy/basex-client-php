@@ -1,20 +1,32 @@
 <?php
+/*
+ * PHP client for BaseX.
+ * Works with BaseX 7.0 and later
+ *
+ * Documentation: https://docs.basex.org/wiki/Clients
+ *
+ * (C) BaseX Team 2005-22, BSD License
+ */
 
 namespace Caxy\BaseX;
 
-use Exception;
-
-class Query
+class Query implements \Iterator
 {
-    private $session;
-    private $id;
-    private $open;
-    private $cache;
+    protected $session;
+    protected $id;
+    protected $cache;
+    protected $pos;
 
-    public function __construct($s, $q)
+    /**
+     * Query constructor.
+     *
+     * @param Session $session
+     * @param string $query
+     */
+    public function __construct($session, $query)
     {
-        $this->session = $s;
-        $this->id = $this->exec(chr(0), $q);
+        $this->session = $session;
+        $this->id = $this->exec(chr(0), $query);
     }
 
     public function bind($name, $value, $type = "")
@@ -34,19 +46,20 @@ class Query
 
     public function more()
     {
-        if ($this->cache == NULL) {
+        if ($this->cache === null) {
             $this->pos = 0;
             $this->session->send(chr(4).$this->id.chr(0));
             while (!$this->session->ok()) {
                 $this->cache[] = $this->session->readString();
             }
             if (!$this->session->ok()) {
-                throw new Exception($this->session->readString());
+                throw new BaseXException($this->session->readString());
             }
         }
-        if($this->pos < count($this->cache)) return true;
+        if ($this->pos < count($this->cache)) {
+            return true;
+        }
         $this->cache = null;
-
         return false;
     }
 
@@ -76,10 +89,28 @@ class Query
     {
         $this->session->send($cmd.$arg);
         $s = $this->session->receive();
-        if ($this->session->ok() != True) {
-            throw new Exception($this->session->readString());
+        if ($this->session->ok() !== true) {
+            throw new BaseXException($this->session->readString());
         }
-
         return $s;
+    }
+
+    public function current()
+    {
+        return $this->cache[$this->pos];
+    }
+
+    public function key()
+    {
+        return $this->pos;
+    }
+
+    public function valid()
+    {
+        return $this->more();
+    }
+
+    public function rewind()
+    {
     }
 }
